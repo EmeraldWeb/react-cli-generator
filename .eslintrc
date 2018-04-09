@@ -1,0 +1,20 @@
+{
+    "extends": "airbnb",
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "rules": {
+        "space-before-function-paren": "off",
+        "linebreak-style": "off",
+        "global-require": "off",
+        "semi": "warn",
+        "arrow-body-style": "off",
+        "indent": ["error", 4],
+        "import/extensions": { "js": "always" }
+    }
+}

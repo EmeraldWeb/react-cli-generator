@@ -1,0 +1,30 @@
+{
+    "name": "react-cli-generator",
+    "version": "1.0.0",
+    "description": "Command line generator of React components",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint ./index.js",
+        "test_component": "node index.js component",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/EmeraldWeb/react-cli-generator.git"
+    },
+    "author": "Chernov Alexey aka EmeraldWeb (https://github.com/EmeraldWeb)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/EmeraldWeb/react-cli-generator/issues"
+    },
+    "homepage": "https://github.com/EmeraldWeb/react-cli-generator#readme",
+    "dependencies": {
+        "fs": "0.0.1-security",
+        "node": "^9.11.0"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.6.1",
+        "eslint": "^4.19.1"
+    }
+}
