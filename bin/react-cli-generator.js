@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+'use strict';
+
 const Fs = require('fs');
 const processPath = process.cwd();
 
