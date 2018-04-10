@@ -1,12 +1,14 @@
 {
     "name": "react-cli-generator",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Command line generator of React components",
-    "main": "index.js",
+    "bin": {
+        "react-cli-generator": "bin/react-cli-generator.js"
+    },
     "scripts": {
-        "lint": "eslint ./index.js",
-        "test_component": "node index.js component",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "lint": "eslint bin/react-cli-generator.js",
+        "test_component": "node bin/react-cli-generator.js component",
+        "publish": "npm publish && git push"
     },
     "repository": {
         "type": "git",

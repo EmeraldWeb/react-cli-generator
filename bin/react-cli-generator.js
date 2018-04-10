@@ -1,4 +1,5 @@
 const Fs = require('fs');
+const processPath = process.cwd();
 
 function SnakeCaseToPascalCase(stringSnake) {
     const stringPascal = stringSnake.replace(/(^\w)|(_)(\w)/gi, (match, p1, p2, p3, offset) => {
@@ -50,7 +51,7 @@ class ComponentGenerator {
     generate() {
         const { fileName } = this;
         const { scssFileContent } = this;
-        const pathToComponents = `${__dirname}/src/components`;
+        const pathToComponents = `${processPath}/src/components`;
 
         Fs.mkdirSync(`${pathToComponents}/${fileName}`);
         Fs.appendFileSync(`${pathToComponents}/${fileName}/${fileName}.jsx`, this.jsxFileContent());
@@ -58,28 +59,28 @@ class ComponentGenerator {
         Fs.mkdirSync(`${pathToComponents}/${fileName}/scss`);
         Fs.appendFileSync(`${pathToComponents}/${fileName}/scss/${fileName}.scss`, scssFileContent);
 
-        Fs.appendFileSync(`${__dirname}/tests/components/${fileName}.test.js`, this.testFileContent());
+        Fs.appendFileSync(`${processPath}/tests/components/${fileName}.test.js`, this.testFileContent());
     }
 }
 
 if (process.argv[2] === 'component' && process.argv.length >= 4) {
     const componentName = process.argv[3];
 
-    if (!Fs.existsSync(`${__dirname}/src`)) {
-        Fs.mkdirSync(`${__dirname}/src`);
-        Fs.mkdirSync(`${__dirname}/src/components`);
-    } else if (!Fs.existsSync(`${__dirname}/src/components`)) {
-        Fs.mkdirSync(`${__dirname}/src/components`);
+    if (!Fs.existsSync(`${processPath}/src`)) {
+        Fs.mkdirSync(`${processPath}/src`);
+        Fs.mkdirSync(`${processPath}/src/components`);
+    } else if (!Fs.existsSync(`${processPath}/src/components`)) {
+        Fs.mkdirSync(`${processPath}/src/components`);
     }
 
-    if (!Fs.existsSync(`${__dirname}/tests`)) {
-        Fs.mkdirSync(`${__dirname}/tests`);
-        Fs.mkdirSync(`${__dirname}/tests/components`);
-    } else if (!Fs.existsSync(`${__dirname}/tests/components`)) {
-        Fs.mkdirSync(`${__dirname}/tests/components`);
+    if (!Fs.existsSync(`${processPath}/tests`)) {
+        Fs.mkdirSync(`${processPath}/tests`);
+        Fs.mkdirSync(`${processPath}/tests/components`);
+    } else if (!Fs.existsSync(`${processPath}/tests/components`)) {
+        Fs.mkdirSync(`${processPath}/tests/components`);
     }
 
-    if (!Fs.existsSync(`${__dirname}/src/components/${componentName}`)) {
+    if (!Fs.existsSync(`${processPath}/src/components/${componentName}`)) {
         const newComponent = new ComponentGenerator(componentName);
         newComponent.generate();
         console.log(`SUCCESS: The "${componentName}" component was successfully generated`);
