@@ -60,7 +60,8 @@ class ComponentGenerator {
         const { className } = this;
         const { pathToComponentDirectory } = this;
         const { pathToTestDirectory } = this;
-        const relativePath = path.relative(`${pathToTestDirectory}`, `${pathToComponentDirectory}/${fileName}.jsx`);
+        let relativePath = path.relative(`${pathToTestDirectory}`, `${pathToComponentDirectory}/${fileName}.jsx`);
+        relativePath = relativePath.replace(/\\/g, '/');
 
         const string =
             'import React from \'react\';\n' +
