@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
-'use strict';
-
 const Fs = require('fs');
+const path = require('path');
+
 const processPath = process.cwd();
+const configFileName = '.react-cli-generator.json';
 
 function SnakeCaseToPascalCase(stringSnake) {
     const stringPascal = stringSnake.replace(/(^\w)|(_)(\w)/gi, (match, p1, p2, p3, offset) => {
@@ -18,20 +19,36 @@ function SnakeCaseToPascalCase(stringSnake) {
     return stringPascal;
 }
 
+function PickUpConfigFile() {
+    if (!Fs.existsSync(`${processPath}/${configFileName}`)) {
+        console.log('Please create configuration file \'.react-cli-generator.json\'');
+        return false;
+    }
+
+    return JSON.parse(Fs.readFileSync(`${processPath}/${configFileName}`, 'utf8'));
+}
+
 class ComponentGenerator {
-    constructor(passedfileName) {
-        this.fileName = passedfileName;
-        this.className = SnakeCaseToPascalCase(passedfileName);
-        this.scssFileContent = '@import \'../../../common/variable\';\n';
+    constructor(config) {
+        this.fileName = config.name;
+        this.className = SnakeCaseToPascalCase(config.name);
+        this.pathToComponentDirectory = `${processPath}/${config.pathToDirectory}/${this.fileName}`;
+        this.style = config.style;
+        this.styleCommon = config.styleCommon;
+        this.pathToTestDirectory = config.test ? `${processPath}/${config.pathToTestDirectory}` : false;
     }
 
     jsxFileContent() {
         const { fileName } = this;
         const { className } = this;
+        const { style } = this;
+
+        const importScss = style ? `import './${style}/${fileName}.${style}';\n` : '';
+
         const string =
             'import React from \'react\';\n' +
-            `import './scss/${fileName}.scss';\n\n` +
-            `function ${className}() {\n` +
+            `${importScss}` +
+            `\nfunction ${className}() {\n` +
             `    return (\n        <div>${className}</div>\n    );\n}\n\n` +
             `export default ${className};\n`;
 
@@ -41,56 +58,75 @@ class ComponentGenerator {
     testFileContent() {
         const { fileName } = this;
         const { className } = this;
+        const { pathToComponentDirectory } = this;
+        const { pathToTestDirectory } = this;
+        const relativePath = path.relative(`${pathToTestDirectory}`, `${pathToComponentDirectory}/${fileName}.jsx`);
+
         const string =
             'import React from \'react\';\n' +
             'import { shallow, configure } from \'enzyme\';\n' +
             'import Adapter from \'enzyme-adapter-react-16\';\n\n' +
-            `import ${className} from '../../src/components/${fileName}/${fileName}.jsx';\n\n` +
+            `import ${className} from '${relativePath}';\n\n` +
             'configure({ adapter: new Adapter() });\n\n' +
             `describe('${className}', () => {\n    const wrapper = shallow(<${className} />);\n});\n`;
 
         return string;
     }
 
-    generate() {
+    generateComponent() {
         const { fileName } = this;
-        const { scssFileContent } = this;
-        const pathToComponents = `${processPath}/src/components`;
+        const { pathToComponentDirectory } = this;
 
-        Fs.mkdirSync(`${pathToComponents}/${fileName}`);
-        Fs.appendFileSync(`${pathToComponents}/${fileName}/${fileName}.jsx`, this.jsxFileContent());
+        Fs.mkdirSync(`${pathToComponentDirectory}`);
+        Fs.appendFileSync(`${pathToComponentDirectory}/${fileName}.jsx`, this.jsxFileContent());
+    }
 
-        Fs.mkdirSync(`${pathToComponents}/${fileName}/scss`);
-        Fs.appendFileSync(`${pathToComponents}/${fileName}/scss/${fileName}.scss`, scssFileContent);
+    generateStyle() {
+        const { style } = this;
 
-        Fs.appendFileSync(`${processPath}/tests/components/${fileName}.test.js`, this.testFileContent());
+        if (style) {
+            const { fileName } = this;
+            const { styleCommon } = this;
+            const { pathToComponentDirectory } = this;
+
+            Fs.mkdirSync(`${pathToComponentDirectory}/${style}`);
+            Fs.appendFileSync(`${pathToComponentDirectory}/${style}/${fileName}.${style}`, styleCommon);
+        }
+    }
+
+    generateTest() {
+        const { fileName } = this;
+        const { pathToTestDirectory } = this;
+
+        if (pathToTestDirectory && !Fs.existsSync(`${pathToTestDirectory}/${fileName}.test.js`)) {
+            Fs.appendFileSync(`${pathToTestDirectory}/${fileName}.test.js`, this.testFileContent());
+        }
     }
 }
 
-if (process.argv[2] === 'component' && process.argv.length >= 4) {
-    const componentName = process.argv[3];
+function Init() {
+    const configuration = PickUpConfigFile();
+    const { component } = configuration;
 
-    if (!Fs.existsSync(`${processPath}/src`)) {
-        Fs.mkdirSync(`${processPath}/src`);
-        Fs.mkdirSync(`${processPath}/src/components`);
-    } else if (!Fs.existsSync(`${processPath}/src/components`)) {
-        Fs.mkdirSync(`${processPath}/src/components`);
+    if (component && process.argv[2] === 'component' && process.argv.length >= 4) {
+        component.name = process.argv[3];
+        const { pathToDirectory } = component;
+        const newComponent = new ComponentGenerator(component);
+
+        if (!Fs.existsSync(`${processPath}/${pathToDirectory}/${component.name}`)) {
+            newComponent.generateComponent();
+            newComponent.generateStyle();
+            newComponent.generateTest();
+
+            console.log(`SUCCESS: The "${component.name}" component was successfully generated`);
+        } else {
+            console.log(`ERROR: Component "${component.name}" is already exist`);
+        }
+
+        return;
     }
 
-    if (!Fs.existsSync(`${processPath}/tests`)) {
-        Fs.mkdirSync(`${processPath}/tests`);
-        Fs.mkdirSync(`${processPath}/tests/components`);
-    } else if (!Fs.existsSync(`${processPath}/tests/components`)) {
-        Fs.mkdirSync(`${processPath}/tests/components`);
-    }
-
-    if (!Fs.existsSync(`${processPath}/src/components/${componentName}`)) {
-        const newComponent = new ComponentGenerator(componentName);
-        newComponent.generate();
-        console.log(`SUCCESS: The "${componentName}" component was successfully generated`);
-    } else {
-        console.log(`ERROR: Component "${componentName}" is already exist`);
-    }
-} else {
     console.log(`ERROR: It is impossible to generate things like "${process.argv[2]}", please generate "component" with name as second attribute`);
 }
+
+Init();

@@ -5,16 +5,18 @@
         "ecmaVersion": 6
     },
     "env": {
-        "node": true,
-        "es6": true
+        "es6": true,
+        "node": true
     },
     "rules": {
-        "space-before-function-paren": "off",
-        "linebreak-style": "off",
-        "global-require": "off",
-        "semi": "warn",
         "arrow-body-style": "off",
+        "global-require": "off",
+        "import/extensions": { "js": "always" },
         "indent": ["error", 4],
-        "import/extensions": { "js": "always" }
+        "linebreak-style": "off",
+        "no-console": 0,
+        "prefer-destructuring": ["error", {"object": true, "array": false}],
+        "semi": "warn",
+        "space-before-function-paren": "off"
     }
 }
