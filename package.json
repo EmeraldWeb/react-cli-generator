@@ -1,6 +1,6 @@
 {
     "name": "react-cli-generator",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Command line generator of React components",
     "bin": {
         "react-cli-generator": "bin/react-cli-generator.js"
@@ -20,6 +20,11 @@
         "url": "https://github.com/EmeraldWeb/react-cli-generator/issues"
     },
     "homepage": "https://github.com/EmeraldWeb/react-cli-generator#readme",
+    "keywords": [
+        "react",
+        "cli",
+        "generator"
+    ],
     "dependencies": {},
     "devDependencies": {
         "babel-cli": "^6.26.0",
